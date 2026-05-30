@@ -48,6 +48,23 @@ class NoteFile(db.Model):
 
 with app.app_context():
     db.create_all()
+    # Auto-fix missing columns
+    try:
+        db.engine.execute("ALTER TABLE workspace_note ADD COLUMN IF NOT EXISTS tags VARCHAR(300) DEFAULT ''")
+    except:
+        pass
+    try:
+        db.engine.execute("ALTER TABLE workspace_note ADD COLUMN IF NOT EXISTS folder_id VARCHAR(50)")
+    except:
+        pass
+    try:
+        db.engine.execute("ALTER TABLE workspace_note ADD COLUMN IF NOT EXISTS pinned BOOLEAN DEFAULT FALSE")
+    except:
+        pass
+    try:
+        db.engine.execute("CREATE TABLE IF NOT EXISTS folder (id VARCHAR(50) PRIMARY KEY, name VARCHAR(150), color VARCHAR(30))")
+    except:
+        pass
     if not WorkspaceNote.query.first():
         welcome = WorkspaceNote(
             id=str(uuid.uuid4()),
